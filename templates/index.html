@@ -164,6 +164,135 @@
   .error-msg { background:var(--low-bg); border:1px solid rgba(239,68,68,0.3); color:var(--low); border-radius:10px; padding:14px 18px; margin-bottom:20px; font-family:var(--font-mono); font-size:13px; display:none; }
   .error-msg.visible { display:block; }
   footer { border-top:1px solid var(--border); padding:32px 40px; text-align:center; font-family:var(--font-mono); font-size:12px; color:var(--muted2); }
+
+  /* ── TABS ── */
+  .tabs-nav { display:flex; gap:0; margin-bottom:0; border-bottom:1px solid var(--border2); }
+  .tab-btn { font-family:var(--font-mono); font-size:12px; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); background:transparent; border:none; border-bottom:2px solid transparent; padding:10px 20px; cursor:pointer; transition:all 0.15s; }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-btn:hover:not(.active) { color:var(--text); }
+  .tab-pane { display:none; padding-top:20px; }
+  .tab-pane.active { display:block; }
+
+  /* ── CSV UPLOAD ZONE ── */
+  .upload-zone {
+    border:2px dashed var(--border2); border-radius:16px; padding:48px 32px;
+    text-align:center; cursor:pointer; transition:all 0.2s; background:var(--surface);
+    position:relative;
+  }
+  .upload-zone.drag-over { border-color:var(--accent); background:rgba(200,241,53,0.04); }
+  .upload-zone.has-file  { border-color:rgba(200,241,53,0.5); background:rgba(200,241,53,0.03); }
+  .upload-icon { font-size:36px; margin-bottom:12px; opacity:0.5; }
+  .upload-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .upload-sub { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:20px; }
+  .upload-hint { font-family:var(--font-mono); font-size:11px; color:var(--muted2); margin-top:10px; }
+  #csvFileInput { display:none; }
+  .btn-upload { background:var(--accent); color:#0a0a0a; border:none; border-radius:10px; padding:12px 28px; font-family:var(--font-display); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; }
+  .btn-upload:hover { background:var(--accent2); transform:translateY(-1px); }
+  .btn-upload:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+
+  /* CSV progress & result */
+  .csv-progress-wrap { margin-top:20px; }
+  .csv-progress-bar-track { height:6px; background:var(--border); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+  .csv-progress-bar-fill  { height:100%; background:var(--accent); border-radius:3px; width:0%; transition:width 0.4s ease; }
+  .csv-status-msg { font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+
+  .csv-result-card { background:var(--surface); border:1px solid rgba(200,241,53,0.3); border-radius:14px; padding:20px 24px; margin-top:20px; display:none; }
+  .csv-result-card.visible { display:block; animation:fadeUp 0.4s ease both; }
+  .csv-result-title { font-family:var(--font-mono); font-size:10px; color:var(--accent); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; }
+  .csv-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:18px; }
+  .csv-stat { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; text-align:center; }
+  .csv-stat-val { font-size:22px; font-weight:800; line-height:1; margin-bottom:4px; }
+  .csv-stat-lbl { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:0.5px; }
+  .btn-download { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#0a0a0a; border:none; border-radius:10px; padding:12px 28px; font-family:var(--font-display); font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.15s; }
+  .btn-download:hover { background:var(--accent2); transform:translateY(-1px); }
+  .csv-error { font-family:var(--font-mono); font-size:13px; color:var(--low); background:var(--low-bg); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:14px 18px; margin-top:16px; display:none; }
+  .csv-error.visible { display:block; }
+
+  /* ── SHIPPING LABEL CARD ── */
+  .label-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+    font-family: var(--font-mono);
+  }
+  .label-card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+  }
+  .label-card-title {
+    font-size: 11px; color: var(--muted); letter-spacing: 1.5px;
+    text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+  }
+  .label-copy-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-copy {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px;
+    border-radius: 7px; padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border2); background: var(--surface2); color: var(--muted);
+  }
+  .btn-copy:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.05); }
+  .btn-copy.copied { border-color: var(--accent); color: var(--accent); background: rgba(200,241,53,0.1); }
+
+  /* The actual label sticker */
+  .shipping-label {
+    background: #fafaf7; border: 2px solid #d0cfc8;
+    border-radius: 10px; padding: 22px 26px;
+    position: relative; overflow: hidden;
+    color: #1a1a1a; line-height: 1.6;
+  }
+  .shipping-label::before {
+    content: 'SHIP TO';
+    position: absolute; top: 10px; right: 16px;
+    font-size: 9px; letter-spacing: 2px; font-weight: 700;
+    color: #aaa; text-transform: uppercase;
+  }
+  .label-corner-mark {
+    position: absolute; top: 0; left: 0; width: 0; height: 0;
+    border-style: solid; border-width: 28px 28px 0 0;
+    border-color: #c8f135 transparent transparent transparent;
+  }
+  .label-line { margin-bottom: 2px; }
+  .label-line-primary {
+    font-size: 17px; font-weight: 700; color: #111;
+    letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .label-line-secondary { font-size: 13px; color: #333; }
+  .label-line-muted { font-size: 12px; color: #777; }
+  .label-divider {
+    border: none; border-top: 1px dashed #ccc;
+    margin: 10px 0;
+  }
+  .label-pincode-block {
+    display: flex; align-items: center; gap: 12px; margin-top: 6px;
+  }
+  .label-pincode-big {
+    font-size: 26px; font-weight: 800; letter-spacing: 3px;
+    color: #111; font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .label-pincode-tag {
+    font-size: 10px; color: #888; letter-spacing: 1px;
+    text-transform: uppercase; line-height: 1.3;
+  }
+  .label-barcode {
+    margin-top: 14px; display: flex; gap: 2px; align-items: flex-end; height: 28px;
+  }
+  .label-bar {
+    background: #1a1a1a; border-radius: 1px;
+    width: 2px; display: inline-block;
+  }
+  .label-rto-ribbon {
+    position: absolute; bottom: 12px; right: 16px;
+    font-size: 9px; letter-spacing: 1px; font-weight: 700;
+    padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
+  }
+  .label-rto-ribbon.low    { background: #d4f4a0; color: #3a6000; border: 1px solid #b0d860; }
+  .label-rto-ribbon.medium { background: #fde68a; color: #7c4a00; border: 1px solid #f59e0b; }
+  .label-rto-ribbon.high   { background: #fecaca; color: #7f1d1d; border: 1px solid #ef4444; }
+  .label-missing-warn {
+    margin-top: 12px; font-size: 11px; color: var(--mid);
+    background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 7px; padding: 8px 12px; line-height: 1.5;
+  }
+
 </style>
 </head>
 <body>
@@ -180,22 +309,75 @@
 </section>
 
 <section class="input-section">
-  <div class="input-wrapper">
-    <span class="input-label">Raw Address Input</span>
-    <div class="input-row">
-      <input type="text" id="addressInput" placeholder="e.g. H-34 kormangla 5th blk blr" autocomplete="off"/>
-      <button class="btn-clean" id="cleanBtn" onclick="cleanAddress()">Clean →</button>
-    </div>
-    <div class="sample-chips">
-      <span class="chip" onclick="setAddress('Flat no 12, Sec 17 Dwarka, near metro station, Delhi - 110078 call 9876543210')">Landmark & Phone</span>
-      <span class="chip" onclick="setAddress('Flat 12, MG Road, Bangalore Karnataka 110001')">Conflict Test (State Mismatch)</span>
-      <span class="chip" onclick="setAddress('H-34 kormangla 5th blk blr behind post office')">Koramangala + Landmark</span>
-      <span class="chip" onclick="setAddress('12/B Andheri w mmbai next to reliance fresh mob 9811223344')">Andheri + Contact</span>
-      <span class="chip" onclick="setAddress('Plot 9, opp shiva temple, noida up 201301')">Noida 201301</span>
-      <span class="chip" onclick="setAddress('sector-62 gurgaon haryana')">Gurgaon Sector 62</span>
-      <span class="chip" onclick="setAddress('near water tank village up')">Vague Address</span>
+  <!-- TAB NAVIGATION -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" id="tabSingle" onclick="switchTab('single')">&#x2328; Single Address</button>
+    <button class="tab-btn" id="tabBatch"  onclick="switchTab('batch')">&#x1F4C2; CSV Batch Upload</button>
+  </div>
+
+  <!-- TAB: SINGLE ADDRESS -->
+  <div class="tab-pane active" id="paneSingle">
+    <div class="input-wrapper" style="border-radius:0 16px 16px 16px;">
+      <span class="input-label">Raw Address Input</span>
+      <div class="input-row">
+        <input type="text" id="addressInput" placeholder="e.g. H-34 kormangla 5th blk blr" autocomplete="off"/>
+        <button class="btn-clean" id="cleanBtn" onclick="cleanAddress()">Clean &#x2192;</button>
+      </div>
+      <div class="sample-chips">
+        <span class="chip" onclick="setAddress('Flat no 12, Sec 17 Dwarka, near metro station, Delhi - 110078 call 9876543210')">Landmark &amp; Phone</span>
+        <span class="chip" onclick="setAddress('Flat 12, MG Road, Bangalore Karnataka 110001')">Conflict Test (State Mismatch)</span>
+        <span class="chip" onclick="setAddress('H-34 kormangla 5th blk blr behind post office')">Koramangala + Landmark</span>
+        <span class="chip" onclick="setAddress('12/B Andheri w mmbai next to reliance fresh mob 9811223344')">Andheri + Contact</span>
+        <span class="chip" onclick="setAddress('Plot 9, opp shiva temple, noida up 201301')">Noida 201301</span>
+        <span class="chip" onclick="setAddress('sector-62 gurgaon haryana')">Gurgaon Sector 62</span>
+        <span class="chip" onclick="setAddress('near water tank village up')">Vague Address</span>
+      </div>
     </div>
   </div>
+
+  <!-- TAB: CSV BATCH UPLOAD -->
+  <div class="tab-pane" id="paneBatch">
+    <!-- Drop zone -->
+    <div class="upload-zone" id="uploadZone"
+         onclick="document.getElementById('csvFileInput').click()"
+         ondragover="handleDragOver(event)"
+         ondragleave="handleDragLeave(event)"
+         ondrop="handleDrop(event)">
+      <div class="upload-icon">&#x1F4C4;</div>
+      <div class="upload-title" id="uploadTitle">Drop your CSV file here</div>
+      <div class="upload-sub" id="uploadSub">or click to browse &mdash; up to 500 addresses</div>
+      <button class="btn-upload" id="uploadBtn"
+              onclick="event.stopPropagation(); startUpload()" disabled>
+        Process &amp; Enrich &#x2192;
+      </button>
+      <div class="upload-hint">
+        CSV must have an <strong>address</strong> column &nbsp;&bull;&nbsp;
+        Extra columns are preserved &nbsp;&bull;&nbsp; UTF-8 encoding
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv" onchange="onFileSelected(this)">
+    </div>
+
+    <!-- Progress bar (shown during upload) -->
+    <div class="csv-progress-wrap" id="csvProgressWrap" style="display:none;">
+      <div class="csv-progress-bar-track">
+        <div class="csv-progress-bar-fill" id="csvProgressBar"></div>
+      </div>
+      <div class="csv-status-msg" id="csvStatusMsg">Processing addresses&hellip;</div>
+    </div>
+
+    <!-- Error message -->
+    <div class="csv-error" id="csvError"></div>
+
+    <!-- Result card (shown once file is ready) -->
+    <div class="csv-result-card" id="csvResultCard">
+      <div class="csv-result-title">&#x2756; Enrichment Complete &mdash; Download Ready</div>
+      <div class="csv-stats" id="csvStats"></div>
+      <a class="btn-download" id="csvDownloadBtn" href="#" download>&#x2B07; Download Enriched CSV</a>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:10px;"
+           id="csvSummaryNote"></div>
+    </div>
+  </div>
+
   <div class="loading-bar" id="loadingBar"></div>
 </section>
 
@@ -285,6 +467,25 @@
     <div class="imp-row"><span class="imp-label">pincode_inferred</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="5"></div></div><span class="imp-pct">5%</span></div>
     <div class="imp-row"><span class="imp-label">has_district</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="1"></div></div><span class="imp-pct">1%</span></div>
   </div>
+
+  <!-- SHIPPING LABEL STANDARDIZER -->
+  <div class="label-card" id="labelCard" style="display:none;">
+    <div class="label-card-header">
+      <div class="label-card-title">
+        <span>🏷</span> Shipping Label Standardizer
+      </div>
+      <div class="label-copy-btns">
+        <button class="btn-copy" id="btnCopyText" onclick="copyLabel('text')">Copy Plain Text</button>
+        <button class="btn-copy" id="btnCopyJson" onclick="copyLabel('json')">Copy as JSON</button>
+        <button class="btn-copy" onclick="printLabel()">&#x1F5A8; Print</button>
+      </div>
+    </div>
+    <div class="shipping-label" id="shippingLabel">
+      <!-- Populated by JS -->
+    </div>
+    <div class="label-missing-warn" id="labelWarn" style="display:none;"></div>
+  </div>
+
 </section>
 
 <footer>
@@ -564,6 +765,9 @@
     setTimeout(() => {
       document.querySelectorAll('.imp-bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
     }, 200);
+
+    // Feature 6: render shipping label
+    renderLabel(data);
   }
 
   function renderMap(lat, lon, pinSource) {
@@ -587,6 +791,323 @@
         </div>`;
     }
   }
+
+  // ── TAB SWITCHING ────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    const isSingle = tab === 'single';
+    document.getElementById('tabSingle').classList.toggle('active', isSingle);
+    document.getElementById('tabBatch').classList.toggle('active', !isSingle);
+    document.getElementById('paneSingle').classList.toggle('active', isSingle);
+    document.getElementById('paneBatch').classList.toggle('active', !isSingle);
+    // hide results section when switching tabs
+    if (!isSingle) document.getElementById('results').classList.remove('visible');
+  }
+
+  // ── CSV BATCH UPLOAD ──────────────────────────────────────────────────────────
+  let selectedFile = null;
+
+  function onFileSelected(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedFile = file;
+    document.getElementById('uploadTitle').textContent = '📄 ' + file.name;
+    document.getElementById('uploadSub').textContent =
+      (file.size / 1024).toFixed(1) + ' KB — ready to process';
+    document.getElementById('uploadBtn').disabled = false;
+    document.getElementById('uploadZone').classList.add('has-file');
+    // reset previous results
+    document.getElementById('csvResultCard').classList.remove('visible');
+    document.getElementById('csvError').classList.remove('visible');
+    document.getElementById('csvProgressWrap').style.display = 'none';
+    document.getElementById('csvProgressBar').style.width = '0%';
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    document.getElementById('uploadZone').classList.remove('drag-over');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) {
+      // Assign to real input so onFileSelected works
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const input = document.getElementById('csvFileInput');
+      input.files = dt.files;
+      onFileSelected(input);
+    } else {
+      showCsvError('Only .csv files are accepted.');
+    }
+  }
+
+  async function startUpload() {
+    if (!selectedFile) return;
+
+    const btn       = document.getElementById('uploadBtn');
+    const progressWrap = document.getElementById('csvProgressWrap');
+    const progressBar  = document.getElementById('csvProgressBar');
+    const statusMsg    = document.getElementById('csvStatusMsg');
+    const resultCard   = document.getElementById('csvResultCard');
+    const csvError     = document.getElementById('csvError');
+
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+    csvError.classList.remove('visible');
+    resultCard.classList.remove('visible');
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0%';
+    statusMsg.textContent = 'Uploading and processing addresses…';
+
+    // Animate progress (fake but reassuring — real work happens server-side)
+    let fakeProgress = 0;
+    const ticker = setInterval(() => {
+      fakeProgress = Math.min(fakeProgress + Math.random() * 8, 85);
+      progressBar.style.width = fakeProgress + '%';
+    }, 300);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+
+      clearInterval(ticker);
+      progressBar.style.width = '100%';
+
+      if (!res.ok) {
+        // Server returned an error JSON
+        const err = await res.json();
+        showCsvError(err.error || 'Server error — could not process file.');
+        return;
+      }
+
+      // Read CSV blob for download
+      const blob     = await res.blob();
+      const url      = URL.createObjectURL(blob);
+      const filename = (res.headers.get('Content-Disposition') || '')
+                        .match(/filename="?([^"]+)"?/)?.[1]
+                        || 'addressiq_enriched.csv';
+
+      statusMsg.textContent = 'Done! Enriched file ready for download.';
+
+      // Parse summary from first line of CSV (comment)
+      const text    = await blob.text();
+      const comment = text.split('\n')[0] || '';
+      const stats   = parseSummaryComment(comment);
+
+      // Build stats grid
+      const statsDiv = document.getElementById('csvStats');
+      statsDiv.innerHTML = buildStatCards(stats);
+
+      // Wire download link
+      const dlBtn = document.getElementById('csvDownloadBtn');
+      dlBtn.href     = url;
+      dlBtn.download = filename;
+
+      document.getElementById('csvSummaryNote').textContent =
+        `Processed ${stats.processed || '?'} address rows · Exported as ${filename}`;
+
+      resultCard.classList.add('visible');
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      clearInterval(ticker);
+      showCsvError('Connection error — is Flask running? ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Process & Enrich →';
+    }
+  }
+
+  function parseSummaryComment(line) {
+    // Format: # AddressIQ Enriched Export | processed:N | high:N | medium:N | low:N | ts:...
+    const stats = {};
+    const pairs = line.replace(/^#\s*/, '').split('|');
+    pairs.forEach(p => {
+      const [k, v] = p.trim().split(':');
+      if (k && v !== undefined) stats[k.trim()] = v.trim();
+    });
+    return stats;
+  }
+
+  function buildStatCards(stats) {
+    const items = [
+      { val: stats.processed || '—', lbl: 'Total Rows',     color: 'var(--text)' },
+      { val: stats.high      || '0', lbl: 'HIGH Confidence', color: 'var(--high)' },
+      { val: stats.medium    || '0', lbl: 'MEDIUM',          color: 'var(--mid)'  },
+      { val: stats.low       || '0', lbl: 'LOW',             color: 'var(--low)'  },
+    ];
+    return items.map(i => `
+      <div class="csv-stat">
+        <div class="csv-stat-val" style="color:${i.color}">${i.val}</div>
+        <div class="csv-stat-lbl">${i.lbl}</div>
+      </div>`).join('');
+  }
+
+  function showCsvError(msg) {
+    const el = document.getElementById('csvError');
+    el.textContent = '✕  ' + msg;
+    el.classList.add('visible');
+    document.getElementById('csvProgressWrap').style.display = 'none';
+  }
+
+
+  // ── SHIPPING LABEL STANDARDIZER ──────────────────────────────────────────────
+  let _lastLabelData = null;   // cache for copy/print
+
+  function renderLabel(data) {
+    const card  = document.getElementById('labelCard');
+    const label = document.getElementById('shippingLabel');
+    const warn  = document.getElementById('labelWarn');
+
+    // Build label lines
+    const houseNo  = data.house_no   || '';
+    const locality = data.locality   || '';
+    const landmark = data.landmark   || '';
+    const city     = data.city       || data.district || '';
+    const district = data.district   || '';
+    const state    = data.state      || '';
+    const pincode  = data.pincode    || '';
+    const phone    = data.phone_number || '';
+    const rto      = ((data.deliverability || {}).rto_risk || 'MEDIUM').toLowerCase();
+
+    // Line 1: House + Locality
+    const line1 = [houseNo, locality].filter(Boolean).join(', ');
+    // Line 2: Landmark
+    const line2 = landmark ? 'Near ' + landmark : '';
+    // Line 3: City - Pincode
+    const line3Parts = [city, pincode ? '- ' + pincode : ''].filter(Boolean);
+    const line3 = line3Parts.join(' ');
+    // Line 4: District, State
+    const line4 = [district, state].filter(Boolean).join(', ');
+    // Line 5: Phone
+    const line5 = phone ? 'Ph: ' + phone : '';
+
+    // Store for copy/print
+    _lastLabelData = { line1, line2, line3, line4, line5, pincode, rto, data };
+
+    // Detect missing critical fields
+    const missing = [];
+    if (!houseNo)  missing.push('house/unit number');
+    if (!locality && !city) missing.push('locality or city');
+    if (!pincode)  missing.push('pincode');
+
+    // Fake barcode bars (decorative)
+    const bars = Array.from({ length: 38 }, (_, i) => {
+      const h = 14 + Math.sin(i * 0.7) * 8 + (i % 3 === 0 ? 6 : 0);
+      const w = i % 4 === 0 ? 3 : 2;
+      return `<span class="label-bar" style="height:${h.toFixed(0)}px;width:${w}px;"></span>`;
+    }).join('');
+
+    label.innerHTML = `
+      <div class="label-corner-mark"></div>
+      ${line1 ? `<div class="label-line label-line-primary">${escHtml(line1)}</div>` : ''}
+      ${line2 ? `<div class="label-line label-line-secondary">${escHtml(line2)}</div>` : ''}
+      <hr class="label-divider">
+      <div class="label-pincode-block">
+        ${pincode
+          ? `<div class="label-pincode-big">${escHtml(pincode)}</div>
+             <div class="label-pincode-tag">${escHtml(line3.replace(pincode,'').replace('-','').trim())}<br>${escHtml(line4)}</div>`
+          : `<div class="label-pincode-tag" style="font-size:14px;color:#555;">${escHtml(line3)}<br>${escHtml(line4)}</div>`
+        }
+      </div>
+      ${line5 ? `<div class="label-line label-line-muted" style="margin-top:8px;">${escHtml(line5)}</div>` : ''}
+      <div class="label-barcode">${bars}</div>
+      <div class="label-rto-ribbon ${rto}">RTO: ${rto.toUpperCase()} RISK</div>
+    `;
+
+    if (missing.length > 0) {
+      warn.style.display = 'block';
+      warn.innerHTML = '⚠ Label may be incomplete — missing: <strong>' + missing.join(', ') + '</strong>. Add these fields to improve deliverability.';
+    } else {
+      warn.style.display = 'none';
+    }
+
+    card.style.display = 'block';
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  async function copyLabel(format) {
+    if (!_lastLabelData) return;
+    const { line1, line2, line3, line4, line5, data } = _lastLabelData;
+
+    let text;
+    if (format === 'json') {
+      const obj = {
+        line1: line1 || null,
+        landmark: line2 || null,
+        city_pincode: line3 || null,
+        district_state: line4 || null,
+        phone: line5 || null,
+        pincode_source: data.pincode_source || null,
+        confidence_tier: data.confidence_tier || null,
+        rto_risk: (data.deliverability || {}).rto_risk || null,
+      };
+      text = JSON.stringify(obj, null, 2);
+    } else {
+      text = [line1, line2, line3, line4, line5].filter(Boolean).join('\n');
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById(format === 'json' ? 'btnCopyJson' : 'btnCopyText');
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = format === 'json' ? 'Copy as JSON' : 'Copy Plain Text';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch (e) {
+      alert('Could not copy: ' + e.message);
+    }
+  }
+
+  function printLabel() {
+    if (!_lastLabelData) return;
+    const labelHtml = document.getElementById('shippingLabel').outerHTML;
+    const win = window.open('', '_blank', 'width=500,height=420');
+    win.document.write(`
+      <!DOCTYPE html><html><head><title>Shipping Label — AddressIQ</title>
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+      <style>
+        body { margin: 40px; background: #fff; font-family: 'JetBrains Mono', monospace; }
+        .shipping-label { border: 2px solid #333; border-radius: 10px; padding: 22px 26px; position: relative; max-width: 380px; }
+        .shipping-label::before { content: 'SHIP TO'; position: absolute; top: 10px; right: 16px; font-size: 9px; letter-spacing: 2px; font-weight: 700; color: #aaa; }
+        .label-corner-mark { position: absolute; top: 0; left: 0; width: 0; height: 0; border-style: solid; border-width: 28px 28px 0 0; border-color: #6abf00 transparent transparent transparent; }
+        .label-line-primary { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+        .label-line-secondary { font-size: 13px; margin-bottom: 2px; }
+        .label-line-muted { font-size: 12px; color: #777; }
+        hr { border: none; border-top: 1px dashed #ccc; margin: 10px 0; }
+        .label-pincode-block { display: flex; align-items: center; gap: 12px; }
+        .label-pincode-big { font-size: 26px; font-weight: 800; letter-spacing: 3px; }
+        .label-pincode-tag { font-size: 11px; color: #555; line-height: 1.4; }
+        .label-barcode { display: flex; gap: 2px; align-items: flex-end; height: 28px; margin-top: 14px; }
+        .label-bar { background: #1a1a1a; border-radius: 1px; width: 2px; display: inline-block; }
+        .label-rto-ribbon { position: absolute; bottom: 12px; right: 16px; font-size: 9px; letter-spacing: 1px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; background: #d4f4a0; color: #3a6000; border: 1px solid #b0d860; }
+        @media print { body { margin: 10px; } }
+      </style></head><body>
+      ${labelHtml}
+      <p style="margin-top:20px;font-size:10px;color:#aaa;font-family:monospace;">Generated by AddressIQ &mdash; AI Address Intelligence</p>
+      <script>window.onload=()=>window.print();<\/script>
+      </body></html>
+    `);
+    win.document.close();
+  }
+
 </script>
 </body>
 </html>
