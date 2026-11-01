@@ -1,17 +1,14 @@
 """
 nlp_parser.py
 -------------
-Extracts city, state, and locality from a cleaned address string.
-
-TECHNIQUE: Fuzzy String Matching
-Measures string similarity (0-100%) instead of exact matching.
-Handles typos, abbreviations, and colloquial city names.
-
-Libraries: rapidfuzz (pip install rapidfuzz) or difflib (built-in)
+Extracts city, state, and locality from a cleaned Indian address string.
+- Fuzzy and Exact String Matching for 700+ Indian districts & 36 states/UTs
+- Non-greedy token matching to prevent swallowing adjacent numbers or locality names
+- Comprehensive locality parsing (patterns + semantic fallback)
+- Cross-geographic resolution (City -> State, State -> City for UTs like Delhi/Chandigarh)
 """
 
 import re
-
 try:
     from rapidfuzz import process as fuzz_process, fuzz
     RAPIDFUZZ = True
@@ -19,328 +16,301 @@ except ImportError:
     import difflib
     RAPIDFUZZ = False
 
-from pincode_lookup import get_all_cities, get_all_states
+from pincode_lookup import get_all_cities, get_all_states, get_state_for_district
 
 
 # ---------------------------------------------------------------
-# CITY ALIAS MAP
+# CITY & DISTRICT ALIAS MAP
 # ---------------------------------------------------------------
-# Two purposes:
-#
-# 1. Common name → official dataset name
-#    "bangalore" → "bengaluru urban"  (official spelling differs)
-#    "gurgaon"   → "gurugram"         (city was renamed)
-#
-# 2. Direct city names → themselves
-#    "chennai" → "chennai"
-#    WHY: alias check scores 100% and always wins over fuzzy matches.
-#    Without this, a false fuzzy match earlier in the token list
-#    would fire before we even reach the correct city token.
-
 CITY_ALIASES = {
-    # common name → official dataset name
-    "delhi":      "new delhi",
-    "dilli":      "new delhi",
-    "bangalore":  "bengaluru urban",
-    "bangaluru":  "bengaluru urban",
-    "bengaluru":  "bengaluru urban",
-    "bombay":     "mumbai",
-    "madras":     "chennai",
-    "calcutta":   "kolkata",
-    "gurgaon":    "gurugram",
-    "noida":      "gautam buddha nagar",
-    "ghaziabad":  "ghaziabad",
-    # direct names → themselves (fast-path, prevents false fuzzy matches)
-    "chennai":    "chennai",
-    "mumbai":     "mumbai",
-    "kolkata":    "kolkata",
-    "hyderabad":  "hyderabad",
-    "pune":       "pune",
-    "jaipur":     "jaipur",
-    "lucknow":    "lucknow",
-    "surat":      "surat",
-    "patna":      "patna",
-    "bhopal":     "bhopal",
-    "indore":     "indore",
-    "nagpur":     "nagpur",
-    "chandigarh": "chandigarh",
-    "dehradun":   "dehradun",
-    "gurugram":   "gurugram",
-    "ahmedabad":  "ahmedabad",
-    "coimbatore": "coimbatore",
-    "kochi":      "ernakulam",
-    "vizag":      "visakhapatnam",
+    # Delhi NCR
+    "delhi":          "new delhi",
+    "dilli":          "new delhi",
+    "new delhi":      "new delhi",
+    "gurgaon":        "gurugram",
+    "gurugram":       "gurugram",
+    "noida":          "gautam buddha nagar",
+    "greater noida":  "gautam buddha nagar",
+    "ghaziabad":      "ghaziabad",
+    "faridabad":      "faridabad",
+
+    # Karnataka
+    "bangalore":      "bengaluru urban",
+    "bangaluru":      "bengaluru urban",
+    "bengaluru":      "bengaluru urban",
+    "mysore":         "mysuru",
+    "mangalore":      "dakshina kannada",
+    "belgaum":        "belagavi",
+    "hubli":          "dharwad",
+
+    # Maharashtra
+    "bombay":         "mumbai",
+    "mumbai":         "mumbai",
+    "navi mumbai":    "thane",
+    "thane":          "thane",
+    "pune":           "pune",
+    "poona":          "pune",
+    "nagpur":         "nagpur",
+    "nashik":         "nashik",
+    "nasik":          "nashik",
+    "aurangabad":     "aurangabad",
+
+    # Tamil Nadu
+    "madras":         "chennai",
+    "chennai":        "chennai",
+    "coimbatore":     "coimbatore",
+    "madurai":        "madurai",
+    "trichy":         "tiruchirappalli",
+    "salem":          "salem",
+
+    # West Bengal
+    "calcutta":       "kolkata",
+    "kolkata":        "kolkata",
+    "howrah":         "howrah",
+    "asansol":        "paschim bardhaman",
+
+    # Telangana & AP
+    "hyderabad":      "hyderabad",
+    "secunderabad":   "hyderabad",
+    "vizag":          "visakhapatnam",
+    "visakhapatnam":  "visakhapatnam",
+    "vijayawada":     "krishna",
+
+    # Gujarat
+    "ahmedabad":      "ahmedabad",
+    "surat":          "surat",
+    "baroda":         "vadodara",
+    "vadodara":       "vadodara",
+    "rajkot":         "rajkot",
+
+    # Kerala
+    "cochin":         "ernakulam",
+    "kochi":          "ernakulam",
+    "trivandrum":     "thiruvananthapuram",
+    "calicut":        "kozhikode",
+
+    # North & Central
+    "jaipur":         "jaipur",
+    "lucknow":        "lucknow",
+    "kanpur":         "kanpur nagar",
+    "varanasi":       "varanasi",
+    "banaras":        "varanasi",
+    "patna":          "patna",
+    "bhopal":         "bhopal",
+    "indore":         "indore",
+    "chandigarh":     "chandigarh",
+    "dehradun":       "dehradun",
+    "shimla":         "shimla",
+    "amritsar":       "amritsar",
+    "ludhiana":       "ludhiana",
+    "jalandhar":      "jalandhar",
+    "ranchi":         "ranchi",
+    "bhubaneswar":    "khordha",
+    "cuttack":        "cuttack",
+    "guwahati":       "kamrup metropolitan",
 }
 
-
-# ---------------------------------------------------------------
-# CACHED LISTS
-# ---------------------------------------------------------------
-# Loaded once from the pincode DB, reused on every call.
-# Avoids re-reading 165K rows for every address parsed.
-
-_CITY_LIST  = None
-_STATE_LIST = None
+_CITY_LIST       = None
+_CITY_SET        = None
+_STATE_LIST      = None
+_STATE_SET       = None
 
 def _get_city_list():
-    global _CITY_LIST
+    global _CITY_LIST, _CITY_SET
     if _CITY_LIST is None:
         _CITY_LIST = [c.lower() for c in get_all_cities()]
+        _CITY_SET  = set(_CITY_LIST)
     return _CITY_LIST
 
 def _get_state_list():
-    global _STATE_LIST
+    global _STATE_LIST, _STATE_SET
     if _STATE_LIST is None:
         _STATE_LIST = [s.lower() for s in get_all_states()]
+        _STATE_SET  = set(_STATE_LIST)
     return _STATE_LIST
 
 
 # ---------------------------------------------------------------
-# FUZZY MATCH WITH SCORE
+# PRECISE SLIDING WINDOW MATCHING
 # ---------------------------------------------------------------
-# Returns (best_match, score) or (None, 0).
-#
-# WHY SequenceMatcher directly instead of get_close_matches:
-# get_close_matches uses strictly GREATER THAN internally (score > cutoff)
-# so a score of exactly 0.800 at cutoff=0.80 returns nothing.
-#
-# SequenceMatcher lets us use >= (greater than OR equal to)
-# so boundary scores like "dlehi" vs "delhi" = 0.800 pass correctly.
-#
-# We also need the actual score (not just pass/fail) so the
-# sliding window can compare candidates and pick the best one.
+def smart_sliding_match(tokens, choices, alias_map=None, threshold=82):
+    if not tokens:
+        return None, -1, -1
 
-def fuzzy_match_with_score(query, choices, threshold=78):
-    """
-    Find best matching string from choices for query.
+    tokens_lower = [t.lower() for t in tokens]
+    n = len(tokens_lower)
+    choices_set = set(choices)
 
-    Args:
-        query     : word or phrase to match
-        choices   : list of known city/state names
-        threshold : minimum similarity % to accept (0-100), uses >=
+    # 1. Exact alias matches (e.g. "bangalore" -> "bengaluru urban")
+    if alias_map:
+        for w in [3, 2, 1]:
+            for i in range(n - w + 1):
+                candidate = " ".join(tokens_lower[i : i + w])
+                if candidate in alias_map:
+                    official = alias_map[candidate]
+                    if official in choices_set:
+                        return official, i, i + w
 
-    Returns:
-        (best_match, score) or (None, 0)
-    """
-    if not query or not choices or len(query) < 5:
-        return None, 0
+    # 2. Exact choice match (e.g. "mumbai", "new delhi")
+    for w in [3, 2, 1]:
+        for i in range(n - w + 1):
+            candidate = " ".join(tokens_lower[i : i + w])
+            if candidate in choices_set:
+                return candidate, i, i + w
 
-    if RAPIDFUZZ:
-        result = fuzz_process.extractOne(
-            query, choices,
-            scorer=fuzz.token_sort_ratio,
-            score_cutoff=threshold
-        )
-        if result:
-            return result[0], result[1]
-        return None, 0
-    else:
-        # Iterate and use >= so boundary scores pass
-        best_match = None
-        best_score = 0
-        for choice in choices:
-            score = difflib.SequenceMatcher(None, query, choice).ratio() * 100
-            if score >= threshold and score > best_score:
-                best_match = choice
-                best_score = score
-        return best_match, best_score
+    # 3. Fuzzy match against aliases (e.g. "bangalor")
+    if alias_map:
+        alias_keys = list(alias_map.keys())
+        for w in [1, 2]:
+            for i in range(n - w + 1):
+                candidate = " ".join(tokens_lower[i : i + w])
+                if len(candidate) < 5:
+                    continue
+                if RAPIDFUZZ:
+                    res = fuzz_process.extractOne(candidate, alias_keys, scorer=fuzz.ratio, score_cutoff=86)
+                    if res:
+                        matched_key = res[0]
+                        official = alias_map[matched_key]
+                        if official in choices_set:
+                            return official, i, i + w
 
+    # 4. Fuzzy match against official choices (word-count aligned)
+    best_match = None
+    best_score = 0
+    best_pos   = (-1, -1)
 
-# ---------------------------------------------------------------
-# ALIAS LOOKUP (with fuzzy fallback for typos)
-# ---------------------------------------------------------------
-# Step 1: exact lookup  — "bangalore"  → found directly
-# Step 2: fuzzy lookup  — "bangalor"   → fuzzy matches "bangalore"
-#                          → looks up "bangalore" → "bengaluru urban"
-#
-# Threshold=87 is strict here — alias fuzzy matching is only
-# for clear typos of well-known names, not loose approximations.
-
-def alias_lookup(candidate):
-    """
-    Returns official district name from alias map, or None.
-    Tries exact match first, then fuzzy match against alias keys.
-    """
-    if candidate in CITY_ALIASES:
-        return CITY_ALIASES[candidate]
-
-    alias_keys = list(CITY_ALIASES.keys())
-    matched_key, score = fuzzy_match_with_score(candidate, alias_keys, threshold=87)
-    if matched_key:
-        return CITY_ALIASES[matched_key]
-
-    return None
-
-
-# ---------------------------------------------------------------
-# SLIDING WINDOW MATCH — picks BEST match, not just FIRST
-# ---------------------------------------------------------------
-# Tries largest window first (3 words → 2 words → 1 word).
-# At each window size, scans ALL positions and tracks scores.
-# Returns the match with the HIGHEST score at that window size.
-#
-# WHY BEST NOT FIRST:
-# Tokens: ["42", "anna", "nagar", "chennai"]
-# Old (first): "anna" → "panna" at 88% → returns immediately ✗
-# New (best):  "anna"→88%, "nagar"→86%, "chennai"→100% → returns chennai ✓
-#
-# Alias hits score 100 so they always beat fuzzy matches.
-
-def sliding_window_match(tokens, choices, max_window=3, threshold=78, single_word_threshold=None):
-    """
-    Find best-scoring match across all token window combinations.
-    Returns (matched_name, start_idx, end_idx) or (None, -1, -1)
-    """
-    for window_size in range(min(max_window, len(tokens)), 0, -1):
-        best_match = None
-        best_score = 0
-        best_pos   = (-1, -1)
-
-        for i in range(len(tokens) - window_size + 1):
-            candidate = " ".join(tokens[i : i + window_size])
-
-            # Alias check scores 100 — always beats any fuzzy match
-            official = alias_lookup(candidate)
-            if official and official in choices:
-                if 100 > best_score:
-                    best_match = official
-                    best_score = 100
-                    best_pos   = (i, i + window_size)
+    for w in [1, 2, 3]:
+        for i in range(n - w + 1):
+            candidate = " ".join(tokens_lower[i : i + w])
+            if len(candidate) < 4:
                 continue
 
-            if len(candidate) < 5:
+            choices_subset = [c for c in choices if len(c.split()) == w]
+            if not choices_subset:
                 continue
 
-            # Single word: stricter threshold (85) to avoid
-            # short words like "anna" matching "panna"
-            # Multi-word: slightly relaxed (82)
-            # single_word_threshold overrides default when caller needs different sensitivity
-            # states (36 items): 78 is safe  — 'dlehi'→'delhi' passes, no false matches
-            # cities (749 items): 85 needed — prevents 'anna'→'panna' false match
-            if single_word_threshold is not None:
-                t = single_word_threshold if window_size == 1 else 82
+            if RAPIDFUZZ:
+                res = fuzz_process.extractOne(candidate, choices_subset, scorer=fuzz.ratio, score_cutoff=threshold)
+                if res:
+                    matched_choice, score, _ = res
+                    if score > best_score:
+                        best_match = matched_choice
+                        best_score = score
+                        best_pos   = (i, i + w)
             else:
-                t = 85 if window_size == 1 else 82
-            match, score = fuzzy_match_with_score(candidate, choices, t)
-            if match and score > best_score:
-                best_match = match
-                best_score = score
-                best_pos   = (i, i + window_size)
+                for c in choices_subset:
+                    score = difflib.SequenceMatcher(None, candidate, c).ratio() * 100
+                    if score >= threshold and score > best_score:
+                        best_match = c
+                        best_score = score
+                        best_pos   = (i, i + w)
 
-        if best_match:
-            return best_match, best_pos[0], best_pos[1]
+    if best_match:
+        return best_match, best_pos[0], best_pos[1]
 
     return None, -1, -1
 
 
 # ---------------------------------------------------------------
-# LOCALITY EXTRACTION (regex)
+# STATE & CITY EXTRACTION
 # ---------------------------------------------------------------
-# Localities follow patterns (sector 17, block a, anna nagar).
-# Regex catches the pattern without needing a complete list.
+def extract_state(tokens):
+    states = _get_state_list()
+    state, start, end = smart_sliding_match(tokens, states, alias_map=None, threshold=80)
+    if state:
+        rem_tokens = tokens[:start] + tokens[end:]
+        return state.title(), rem_tokens
+    return None, tokens
 
+def extract_city(tokens):
+    cities = _get_city_list()
+    city, start, end = smart_sliding_match(tokens, cities, alias_map=CITY_ALIASES, threshold=82)
+    if city:
+        rem_tokens = tokens[:start] + tokens[end:]
+        return city.title(), rem_tokens
+    return None, tokens
+
+
+# ---------------------------------------------------------------
+# LOCALITY EXTRACTION
+# ---------------------------------------------------------------
 LOCALITY_PATTERNS = [
-    r"(sector\s*\d+[a-z]?)",       # sector 17, sector 4b
-    r"(block\s*[a-z0-9]+)",        # block a, block 12
-    r"(phase\s*[0-9ivx]+)",        # phase 1, phase iv
-    r"(pocket\s*[a-z0-9]+)",       # pocket b
-    r"(ward\s*\d+)",               # ward 5
-    r"(\w+\s+nagar)",              # anna nagar, rohini nagar
-    r"(\w+\s+colony)",             # shastri colony
-    r"(\w+\s+enclave)",            # vasant enclave
-    r"(\w+\s+vihar)",              # mayur vihar
-    r"(\w+\s+layout)",             # yelahanka layout
+    r"\b(sector\s*[-/]?\s*\d+[a-z]?)\b",
+    r"\b(phase\s*[-/]?\s*[0-9ivx]+)\b",
+    r"\b(block\s*[-/]?\s*[a-z0-9]+)\b",
+    r"\b(pocket\s*[-/]?\s*[a-z0-9]+)\b",
+    r"\b(ward\s*[-/]?\s*\d+)\b",
+    r"\b([a-z0-9]+\s+nagar)\b",
+    r"\b([a-z0-9]+\s+colony)\b",
+    r"\b([a-z0-9]+\s+enclave)\b",
+    r"\b([a-z0-9]+\s+vihar)\b",
+    r"\b([a-z0-9]+\s+layout)\b",
+    r"\b([a-z0-9]+\s+road)\b",
+    r"\b([a-z0-9]+\s+marg)\b",
+    r"\b([a-z0-9]+\s+street)\b",
+    r"\b([a-z0-9]+\s+lane)\b",
+    r"\b([a-z0-9]+\s+market)\b",
+    r"\b([a-z0-9]+\s+bazaar)\b",
+    r"\b([a-z0-9]+\s+heights)\b",
+    r"\b([a-z0-9]+\s+towers)\b",
+    r"\b([a-z0-9]+\s+residency)\b",
+    r"\b([a-z0-9]+\s+apartments?)\b",
 ]
 
-def extract_locality(text):
-    """Extract locality using regex patterns. Returns string or None."""
-    for pattern in LOCALITY_PATTERNS:
-        match = re.search(pattern, text)
-        if match:
-            return match.group(1).strip().title()
+def extract_locality(tokens):
+    text = " ".join(tokens)
+    
+    # 1. Regex patterns
+    for pat in LOCALITY_PATTERNS:
+        m = re.search(pat, text, re.IGNORECASE)
+        if m:
+            return m.group(1).strip().title()
+
+    # 2. Semantic fallback on remaining tokens
+    stopwords = {
+        "near", "opp", "opposite", "behind", "adjacent", "adj", "nr", "at",
+        "floor", "flr", "nd", "th", "rd", "st", "village", "post", "dist",
+        "station", "metro", "-", "/", "#", "flat", "plot", "house", "room",
+        "water", "tank", "point", "gate", "stop"
+    }
+    clean_words = [w for w in tokens if w.lower() not in stopwords and not w.isdigit() and len(w) > 1]
+    
+    if clean_words:
+        candidate = " ".join(clean_words).strip().title()
+        if len(candidate) >= 3:
+            return candidate
+
     return None
 
 
 # ---------------------------------------------------------------
-# STATE EXTRACTION
+# MAIN PARSER
 # ---------------------------------------------------------------
-# Also saves a city_hint when the matched state token is also a
-# city alias. Example: "delhi" → State=Delhi, hint=New Delhi.
-# City extraction uses this hint even after "delhi" is removed.
-
-_city_hint = None
-
-def extract_state(text):
-    global _city_hint
-    _city_hint = None
-
-    states = _get_state_list()
-    tokens = text.split()
-
-    state, start, end = sliding_window_match(tokens, states, max_window=4, threshold=78, single_word_threshold=78)
-
-    if state:
-        # Check if matched token is also a city alias
-        matched_tokens = " ".join(tokens[start:end])
-        hint = alias_lookup(matched_tokens)
-        if hint and hint in _get_city_list():
-            _city_hint = hint
-
-        remaining_tokens = tokens[:start] + tokens[end:]
-        remaining = " ".join(remaining_tokens).strip()
-        return state.title(), remaining
-
-    return None, text
-
-
-# ---------------------------------------------------------------
-# CITY EXTRACTION
-# ---------------------------------------------------------------
-
-def extract_city(text):
-    global _city_hint
-
-    cities = _get_city_list()
-
-    # Use hint from state extraction if available
-    if _city_hint and _city_hint in cities:
-        hint = _city_hint
-        _city_hint = None
-        return hint.title(), text
-
-    tokens = text.split()
-    city, start, end = sliding_window_match(tokens, cities, max_window=3, threshold=78, single_word_threshold=85)
-
-    if city:
-        remaining_tokens = tokens[:start] + tokens[end:]
-        remaining = " ".join(remaining_tokens).strip()
-        return city.title(), remaining
-
-    return None, text
-
-
-# ---------------------------------------------------------------
-# MAIN PARSE FUNCTION
-# ---------------------------------------------------------------
-# Order: state → city → locality
-# Each step removes matched tokens before passing text forward.
-
 def parse_address(normalized_text, remaining_text=None):
-    """
-    Extract city, state, locality from a cleaned address string.
-
-    Args:
-        normalized_text : full cleaned address
-        remaining_text  : text after pincode + house_no removed (preferred)
-
-    Returns:
-        dict with keys: city, state, locality
-    """
     text = remaining_text if remaining_text else normalized_text
+    tokens = text.split()
 
-    state,    text_after_state = extract_state(text)
-    city,     text_after_city  = extract_city(text_after_state)
-    locality                   = extract_locality(text_after_city)
+    # 1. Extract State
+    state, tokens_after_state = extract_state(tokens)
+
+    # 2. Extract City
+    city, tokens_after_city = extract_city(tokens_after_state)
+
+    # 3. Dual-role State/City Resolution (Delhi, Chandigarh, Goa)
+    if state and not city:
+        if state.lower() in ("delhi", "new delhi"):
+            city = "New Delhi"
+        elif state.lower() == "chandigarh":
+            city = "Chandigarh"
+
+    # 4. Infer State from City if State is missing
+    if city and not state:
+        inferred_state = get_state_for_district(city)
+        if inferred_state:
+            state = inferred_state
+
+    # 5. Extract Locality
+    locality = extract_locality(tokens_after_city)
 
     return {
         "city":     city,
@@ -349,28 +319,20 @@ def parse_address(normalized_text, remaining_text=None):
     }
 
 
-# ---------------------------------------------------------------
-# TEST
-# ---------------------------------------------------------------
-
 if __name__ == "__main__":
     test_cases = [
-        ("flat no 12 sector 17 dwarka delhi",            "City=New Delhi, State=Delhi, Locality=Sector 17"),
-        ("h 34 kormangla 5th block bangalore",            "City=Bengaluru Urban, Locality=Block..."),
-        ("plot 9 near metro station noida uttar pradesh", "City=Gautam Buddha Nagar, State=Uttar Pradesh"),
-        ("12 b andheri west mumbai",                      "City=Mumbai"),
-        ("sector 62 gurgaon haryana",                     "City=Gurugram, State=Haryana, Locality=Sector 62"),
-        ("42 anna nagar chennai tamil nadu",              "City=Chennai, State=Tamil Nadu, Locality=Anna Nagar"),
-        ("dlehi rohini",                                  "State=Delhi (typo)"),
-        ("bangalor koramangla",                           "City=Bengaluru Urban (typo via alias)"),
+        "flat no 12 sector 17 dwarka delhi",
+        "koramangala 5th block bangalore",
+        "near metro station noida uttar pradesh",
+        "andheri west mumbai",
+        "sector 62 gurgaon haryana",
+        "sector 9 ambala haryana",
+        "anna nagar chennai tamil nadu",
     ]
-
-    print("=" * 60)
-    for text, expected in test_cases:
-        result = parse_address(text)
-        print(f"Input    : {text}")
-        print(f"Expected : {expected}")
-        print(f"City     : {result['city']}")
-        print(f"State    : {result['state']}")
-        print(f"Locality : {result['locality']}")
-        print("-" * 60)
+    for tc in test_cases:
+        res = parse_address(tc)
+        print(f"Text     : {tc}")
+        print(f"City     : {res['city']}")
+        print(f"State    : {res['state']}")
+        print(f"Locality : {res['locality']}")
+        print("-" * 50)

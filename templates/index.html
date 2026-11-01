@@ -42,8 +42,8 @@
   .hero-tag { display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px; color:var(--accent); border:1px solid rgba(200,241,53,0.3); background:rgba(200,241,53,0.05); padding:5px 14px; border-radius:20px; margin-bottom:28px; letter-spacing:1px; text-transform:uppercase; }
   .hero h1 { font-size:clamp(36px,6vw,68px); font-weight:800; line-height:1.05; letter-spacing:-2px; margin-bottom:20px; }
   .hero h1 em { font-style:normal; color:var(--accent); }
-  .hero p { font-size:16px; color:var(--muted); line-height:1.7; max-width:560px; margin:0 auto 48px; font-weight:400; }
-  .input-section { max-width:800px; margin:0 auto; padding:0 40px 60px; animation:fadeUp 0.6s 0.1s ease both; }
+  .hero p { font-size:16px; color:var(--muted); line-height:1.7; max-width:620px; margin:0 auto 48px; font-weight:400; }
+  .input-section { max-width:850px; margin:0 auto; padding:0 40px 60px; animation:fadeUp 0.6s 0.1s ease both; }
   .input-wrapper { background:var(--surface); border:1px solid var(--border2); border-radius:16px; padding:24px; transition:border-color 0.2s; }
   .input-wrapper:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(200,241,53,0.08); }
   .input-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; display:block; }
@@ -83,72 +83,100 @@
   .conf-bar-fill.low    { background:var(--low); }
   .conf-bar-labels { display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; color:var(--muted2); }
 
+  /* ── NOTES CARD ── */
+  .notes-card { background:var(--surface); border:1px solid rgba(200,241,53,0.25); border-radius:12px; padding:18px 24px; margin-bottom:16px; }
+  .notes-title { font-family:var(--font-mono); font-size:10px; color:var(--accent); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .notes-list { list-style:none; }
+  .notes-list li { font-size:13px; color:var(--text); margin-bottom:6px; display:flex; align-items:center; gap:8px; font-family:var(--font-mono); }
+  .notes-list li::before { content:'✔'; color:var(--accent); font-size:11px; }
+
   /* ── MISSING FIELDS CARD ── */
   .missing-card { background:var(--surface); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:18px 24px; margin-bottom:16px; }
   .missing-title { font-family:var(--font-mono); font-size:10px; color:var(--mid); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .missing-row { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; font-size:13px; }
   .missing-row:last-child { margin-bottom:0; }
-  .missing-dot { width:6px; height:6px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .missing-dot { width:8px; height:8px; border-radius:50%; margin-top:4px; flex-shrink:0; }
   .missing-dot.red    { background:var(--low); }
   .missing-dot.yellow { background:var(--mid); }
-  .missing-hint { color:var(--muted); font-size:11px; font-family:var(--font-mono); margin-top:2px; }
+  .missing-hint { font-size:12px; color:var(--muted); line-height:1.4; }
 
-  .cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
-  @media(max-width:700px) {
-    .cards-grid { grid-template-columns:repeat(2,1fr); }
-    header { padding:0 20px; }
-    .hero,.input-section,.results { padding-left:20px; padding-right:20px; }
-    .hero h1 { font-size:32px; }
-  }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; transition:border-color 0.2s; }
-  .stat-card:hover { border-color:var(--border2); }
-  .stat-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
-  .stat-value { font-size:18px; font-weight:700; color:var(--text); word-break:break-all; line-height:1.2; }
-  .stat-source { font-family:var(--font-mono); font-size:10px; margin-top:6px; padding:2px 8px; border-radius:4px; display:inline-block; }
-  .src-db   { background:var(--info-bg); color:var(--info); }
-  .src-nlp  { background:var(--high-bg); color:var(--high); }
-  .src-rule { background:#1a1a00; color:#d4a800; }
-  .src-none { background:var(--low-bg); color:var(--low); }
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:16px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; position:relative; overflow:hidden; }
+  .stat-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+  .stat-value { font-size:18px; font-weight:700; color:var(--text); line-height:1.2; word-break:break-word; }
+  .stat-source { font-family:var(--font-mono); font-size:9px; letter-spacing:0.5px; margin-top:8px; padding:2px 8px; border-radius:4px; display:inline-block; }
+  .src-rule { background:rgba(200,241,53,0.1); color:var(--accent); border:1px solid rgba(200,241,53,0.2); }
+  .src-db   { background:rgba(96,165,250,0.1); color:var(--info);   border:1px solid rgba(96,165,250,0.2); }
+  .src-nlp  { background:rgba(245,158,11,0.1); color:var(--mid);    border:1px solid rgba(245,158,11,0.2); }
+  .src-inferred { background:rgba(200,241,53,0.15); color:var(--accent); border:1px solid rgba(200,241,53,0.3); font-weight:600; }
+  .src-none { background:rgba(239,68,68,0.1);  color:var(--low);    border:1px solid rgba(239,68,68,0.2); }
+
+  .map-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px; min-height:140px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .map-coords { font-family:var(--font-mono); font-size:13px; color:var(--accent); letter-spacing:1px; position:absolute; top:16px; left:20px; }
+  .map-placeholder { font-family:var(--font-mono); font-size:12px; color:var(--muted2); text-align:center; }
+  .map-dot { width:12px; height:12px; background:var(--accent); border-radius:50%; margin:0 auto; animation:pulse 2s infinite; }
+
   .fields-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; }
-  .fields-card-header { padding:14px 20px; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
-  .field-row { display:grid; grid-template-columns:160px 1fr; border-bottom:1px solid var(--border); transition:background 0.15s; }
+  .fields-card-header { padding:16px 20px; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; display:flex; justify-content:space-between; }
+  .field-row { display:flex; padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; font-family:var(--font-mono); }
   .field-row:last-child { border-bottom:none; }
-  .field-row:hover { background:rgba(255,255,255,0.02); }
-  .field-key { font-family:var(--font-mono); font-size:12px; color:var(--muted); padding:12px 20px; border-right:1px solid var(--border); }
-  .field-val { font-family:var(--font-mono); font-size:13px; color:var(--text); padding:12px 20px; word-break:break-all; }
-  .field-val.null   { color:var(--muted2); font-style:italic; }
-  .field-val.accent { color:var(--accent); }
-  .importance-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:16px; }
-  .importance-title { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px; }
-  .imp-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-  .imp-label { font-family:var(--font-mono); font-size:11px; color:var(--muted); width:130px; flex-shrink:0; }
-  .imp-bar-track { flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
-  .imp-bar-fill { height:100%; background:var(--accent); border-radius:2px; opacity:0.7; transition:width 1s ease; width:0; }
-  .imp-pct { font-family:var(--font-mono); font-size:11px; color:var(--muted); width:36px; text-align:right; }
-  .map-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; height:200px; display:flex; align-items:center; justify-content:center; position:relative; }
-  .map-placeholder { text-align:center; color:var(--muted2); font-family:var(--font-mono); font-size:12px; }
-  .map-coords { position:absolute; top:12px; right:12px; font-family:var(--font-mono); font-size:11px; color:var(--accent); background:rgba(10,10,10,0.8); padding:4px 10px; border-radius:6px; border:1px solid rgba(200,241,53,0.2); }
-  .map-dot { width:12px; height:12px; background:var(--accent); border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); animation:ping 1.5s ease-out infinite; }
-  @keyframes ping { 0%{box-shadow:0 0 0 4px rgba(200,241,53,0.2),0 0 0 8px rgba(200,241,53,0.1)} 100%{box-shadow:0 0 0 12px rgba(200,241,53,0),0 0 0 20px rgba(200,241,53,0)} }
-  .error-msg { background:var(--low-bg); border:1px solid rgba(239,68,68,0.3); color:var(--low); border-radius:10px; padding:14px 18px; font-family:var(--font-mono); font-size:13px; display:none; margin-bottom:16px; }
+  .field-key { width:180px; color:var(--muted); flex-shrink:0; font-size:12px; }
+  .field-val { color:var(--text); word-break:break-word; flex:1; }
+  .field-val.null { color:var(--muted2); font-style:italic; }
+  .field-val.accent { color:var(--accent); font-weight:600; }
+
+  .importance-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; }
+  .importance-title { font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:16px; }
+  .imp-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; font-family:var(--font-mono); font-size:12px; }
+  .imp-label { width:150px; color:var(--text); flex-shrink:0; font-size:11px; }
+  .imp-bar-track { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .imp-bar-fill { height:100%; background:var(--accent); border-radius:3px; width:0; transition:width 0.8s ease; }
+  .imp-pct { width:40px; text-align:right; color:var(--muted); font-size:11px; }
+
+  /* ── DISCREPANCY & CONFLICT BANNER ── */
+  .conflict-banner { border-radius:12px; padding:16px 20px; margin-bottom:16px; font-family:var(--font-mono); font-size:13px; line-height:1.5; display:flex; align-items:flex-start; gap:14px; }
+  .conflict-banner.critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; }
+  .conflict-banner.warning  { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.4); color:#fcd34d; }
+  .conflict-banner.verified { background:rgba(200,241,53,0.08); border:1px solid rgba(200,241,53,0.3); color:var(--accent); }
+  .conflict-icon { font-size:18px; line-height:1; flex-shrink:0; }
+  .conflict-title { font-weight:700; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; font-size:11px; }
+  .conflict-desc { font-size:13px; }
+  .conflict-sugg { margin-top:6px; font-size:12px; opacity:0.85; }
+
+  /* ── DELIVERABILITY & RTO CARD ── */
+  .deliverability-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:16px; font-family:var(--font-mono); }
+  .deliv-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+  .deliv-title { font-size:11px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+  .deliv-badge { padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:1px; }
+  .deliv-badge.low { background:rgba(200,241,53,0.15); color:var(--accent); border:1px solid rgba(200,241,53,0.3); }
+  .deliv-badge.medium { background:rgba(245,158,11,0.15); color:var(--mid); border:1px solid rgba(245,158,11,0.3); }
+  .deliv-badge.high { background:rgba(239,68,68,0.15); color:var(--low); border:1px solid rgba(239,68,68,0.3); }
+  .deliv-action { font-size:13px; color:var(--text); margin-bottom:16px; line-height:1.4; padding:10px 14px; background:var(--surface2); border-radius:8px; border-left:3px solid var(--accent); }
+  .deliv-action.high { border-left-color:var(--low); }
+  .deliv-action.medium { border-left-color:var(--mid); }
+  .deliv-checklist { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+  .check-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .check-item.passed { color:var(--text); }
+  .check-icon { width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+  .check-icon.passed { background:rgba(200,241,53,0.2); color:var(--accent); }
+  .check-icon.failed { background:rgba(239,68,68,0.2); color:var(--low); }
+
+  .error-msg { background:var(--low-bg); border:1px solid rgba(239,68,68,0.3); color:var(--low); border-radius:10px; padding:14px 18px; margin-bottom:20px; font-family:var(--font-mono); font-size:13px; display:none; }
   .error-msg.visible { display:block; }
-  footer { border-top:1px solid var(--border); padding:24px 40px; display:flex; justify-content:space-between; align-items:center; }
-  footer p { font-family:var(--font-mono); font-size:11px; color:var(--muted2); }
-  .pipeline-tags { display:flex; gap:8px; }
-  .pipeline-tag { font-family:var(--font-mono); font-size:10px; color:var(--muted2); border:1px solid var(--border); padding:3px 8px; border-radius:4px; letter-spacing:0.5px; }
+  footer { border-top:1px solid var(--border); padding:32px 40px; text-align:center; font-family:var(--font-mono); font-size:12px; color:var(--muted2); }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo"><div class="logo-dot"></div>Address<span>IQ</span></div>
-  <span class="header-badge">ML + NLP + DS · B.Tech Project</span>
+  <div class="header-badge">v2.0 • Hybrid ML + NLP + Postal Engine</div>
 </header>
 
 <section class="hero">
-  <div class="hero-tag"><span>●</span> AI-Powered Pipeline</div>
+  <div class="hero-tag">Intelligent Postal Normalization</div>
   <h1>Turn messy addresses<br>into <em>structured data</em></h1>
-  <p>Combines rule-based cleaning, India Post pincode lookup, fuzzy NLP parsing, and a RandomForest ML model to validate and enrich any Indian address.</p>
+  <p>Combines rule-based normalization, India Post 165K postal database lookup, smart reverse-inference for missing pincodes, fuzzy NLP parsing, and a balanced RandomForest ML model.</p>
 </section>
 
 <section class="input-section">
@@ -159,12 +187,13 @@
       <button class="btn-clean" id="cleanBtn" onclick="cleanAddress()">Clean →</button>
     </div>
     <div class="sample-chips">
-      <span class="chip" onclick="setAddress('Flat no 12, Sec 17 Dwarka, Delhi - 110078')">With pincode</span>
-      <span class="chip" onclick="setAddress('H-34 Koramangala 5th Block Bangalore')">No pincode</span>
-      <span class="chip" onclick="setAddress('Plot 9, near metro stn, noida up 201301')">Noida UP</span>
-      <span class="chip" onclick="setAddress('42 Anna Nagar Chennai Tamil Nadu')">Chennai</span>
-      <span class="chip" onclick="setAddress('sector-62 gurgaon haryana')">Gurgaon</span>
-      <span class="chip" onclick="setAddress('near water tank village up')">Vague</span>
+      <span class="chip" onclick="setAddress('Flat no 12, Sec 17 Dwarka, near metro station, Delhi - 110078 call 9876543210')">Landmark & Phone</span>
+      <span class="chip" onclick="setAddress('Flat 12, MG Road, Bangalore Karnataka 110001')">Conflict Test (State Mismatch)</span>
+      <span class="chip" onclick="setAddress('H-34 kormangla 5th blk blr behind post office')">Koramangala + Landmark</span>
+      <span class="chip" onclick="setAddress('12/B Andheri w mmbai next to reliance fresh mob 9811223344')">Andheri + Contact</span>
+      <span class="chip" onclick="setAddress('Plot 9, opp shiva temple, noida up 201301')">Noida 201301</span>
+      <span class="chip" onclick="setAddress('sector-62 gurgaon haryana')">Gurgaon Sector 62</span>
+      <span class="chip" onclick="setAddress('near water tank village up')">Vague Address</span>
     </div>
   </div>
   <div class="loading-bar" id="loadingBar"></div>
@@ -184,6 +213,9 @@
     </div>
   </div>
 
+  <!-- DISCREPANCY & CONFLICT ALERT BANNER -->
+  <div class="conflict-banner" id="conflictBanner" style="display:none;"></div>
+
   <div class="conf-bar-wrap">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">Confidence score</span>
@@ -193,7 +225,16 @@
     <div class="conf-bar-labels"><span>0</span><span>LOW</span><span>MEDIUM</span><span>HIGH</span><span>100</span></div>
   </div>
 
-  <!-- MISSING FIELDS CARD — shown when score is low -->
+  <!-- ENRICHMENT NOTES CARD -->
+  <div class="notes-card" id="notesCard" style="display:none;">
+    <div class="notes-title">✦ Pipeline Intelligence & Enrichment Notes</div>
+    <ul class="notes-list" id="notesList"></ul>
+  </div>
+
+  <!-- LOGISTICS DELIVERABILITY & RTO CARD -->
+  <div class="deliverability-card" id="delivCard" style="display:none;"></div>
+
+  <!-- MISSING FIELDS CARD -->
   <div class="missing-card" id="missingCard" style="display:none;"></div>
 
   <div class="cards-grid">
@@ -228,46 +269,52 @@
 
   <div class="fields-card">
     <div class="fields-card-header">
-      <span>All extracted fields</span>
+      <span>All structured fields</span>
       <span id="fieldsFound" style="color:var(--accent);">—</span>
     </div>
     <div id="fieldsBody"></div>
   </div>
 
   <div class="importance-card">
-    <div class="importance-title">ML Feature Importance (your trained RandomForest)</div>
-    <div class="imp-row"><span class="imp-label">pincode_validated</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="80"></div></div><span class="imp-pct">80%</span></div>
-    <div class="imp-row"><span class="imp-label">has_pincode</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="6"></div></div><span class="imp-pct">6%</span></div>
-    <div class="imp-row"><span class="imp-label">has_coords</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="4"></div></div><span class="imp-pct">4%</span></div>
-    <div class="imp-row"><span class="imp-label">has_city</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="3"></div></div><span class="imp-pct">3%</span></div>
-    <div class="imp-row"><span class="imp-label">has_state</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="3"></div></div><span class="imp-pct">3%</span></div>
-    <div class="imp-row"><span class="imp-label">has_district</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="3"></div></div><span class="imp-pct">3%</span></div>
-    <div class="imp-row"><span class="imp-label">has_locality</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="1"></div></div><span class="imp-pct">1%</span></div>
-    <div class="imp-row"><span class="imp-label">has_house_no</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="1"></div></div><span class="imp-pct">1%</span></div>
+    <div class="importance-title">ML Feature Importance (Trained Balanced RandomForest)</div>
+    <div class="imp-row"><span class="imp-label">has_coords</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="38"></div></div><span class="imp-pct">38%</span></div>
+    <div class="imp-row"><span class="imp-label">has_house_no</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="19"></div></div><span class="imp-pct">19%</span></div>
+    <div class="imp-row"><span class="imp-label">has_locality</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="16"></div></div><span class="imp-pct">16%</span></div>
+    <div class="imp-row"><span class="imp-label">has_city</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="14"></div></div><span class="imp-pct">14%</span></div>
+    <div class="imp-row"><span class="imp-label">pincode_validated</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="7"></div></div><span class="imp-pct">7%</span></div>
+    <div class="imp-row"><span class="imp-label">pincode_inferred</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="5"></div></div><span class="imp-pct">5%</span></div>
+    <div class="imp-row"><span class="imp-label">has_district</span><div class="imp-bar-track"><div class="imp-bar-fill" data-pct="1"></div></div><span class="imp-pct">1%</span></div>
   </div>
 </section>
 
 <footer>
-  <p>AddressIQ · AI Address Cleaning & Enrichment System</p>
-  <div class="pipeline-tags">
-    <span class="pipeline-tag">rule_engine</span>
-    <span class="pipeline-tag">pincode_lookup</span>
-    <span class="pipeline-tag">nlp_parser</span>
-    <span class="pipeline-tag">confidence_score</span>
-  </div>
+  AddressIQ — AI-Powered Address Cleaning & Enrichment System
 </footer>
 
 <script>
   const FIELDS_DISPLAY = {
-    raw_address:"Raw input", normalized_address:"Normalized", house_no:"House no",
-    locality:"Locality", city:"City", district:"District", state:"State",
-    pincode:"Pincode", latitude:"Latitude", longitude:"Longitude",
-    confidence_score:"Confidence", scoring_method:"ML method", confidence_tier:"Tier",
+    raw_address: "Raw input",
+    normalized_address: "Normalized text",
+    house_no: "House / Unit no",
+    locality: "Locality / Area",
+    landmark: "Landmark / POI",
+    phone_number: "Contact Phone",
+    city: "City",
+    district: "District",
+    state: "State",
+    pincode: "Pincode",
+    pincode_source: "Pincode source",
+    latitude: "Latitude",
+    longitude: "Longitude",
+    confidence_score: "Confidence score",
+    confidence_tier: "Tier",
+    scoring_method: "Scoring method",
   };
 
   function setAddress(addr) {
     document.getElementById('addressInput').value = addr;
     document.getElementById('addressInput').focus();
+    cleanAddress();
   }
 
   document.getElementById('addressInput').addEventListener('keydown', e => {
@@ -314,33 +361,30 @@
     const card = document.getElementById('missingCard');
     const missing = [];
 
-    if (!data.pincode) missing.push({
-      label: 'No pincode found',
-      hint:  'A valid 6-digit pincode unlocks district, state, and coordinates — adds up to +45 pts to your score',
-      color: 'red'
-    });
-    if (data.pincode && !data.district) missing.push({
-      label: 'Pincode not in India Post database',
-      hint:  'Pincode was found but could not be validated — district and coordinates unavailable',
-      color: 'red'
-    });
+    if (!data.pincode && data.pincode_source !== 'inferred') {
+      missing.push({
+        label: 'No pincode detected or inferred',
+        hint:  'Providing a 6-digit pincode or clear locality allows exact postal routing.',
+        color: 'red'
+      });
+    }
     if (!data.city) missing.push({
-      label: 'City not detected',
-      hint:  'Write the city name clearly e.g. "Mumbai", "Bangalore", "Chennai"',
+      label: 'City / District not detected',
+      hint:  'Add the city or district name clearly (e.g. "Mumbai", "Bangalore", "Noida").',
       color: 'yellow'
     });
     if (!data.locality) missing.push({
-      label: 'Locality not detected',
-      hint:  'Add a sector, block, or area name e.g. "Sector 17", "Anna Nagar", "Koramangala"',
+      label: 'Locality / Area not detected',
+      hint:  'Add a sector, block, or sub-area name (e.g. "Sector 17", "Koramangala", "Andheri West").',
       color: 'yellow'
     });
-    if (!data.latitude) missing.push({
-      label: 'No GPS coordinates',
-      hint:  'Coordinates are fetched automatically from India Post DB — only available with a valid pincode',
+    if (!data.house_no) missing.push({
+      label: 'House / Unit number missing',
+      hint:  'Add unit, flat, plot or house number (e.g. "Flat 12", "Plot 9", "H-34").',
       color: 'yellow'
     });
 
-    if (missing.length === 0) {
+    if (missing.length === 0 || data.confidence_score >= 80) {
       card.style.display = 'none';
       return;
     }
@@ -348,7 +392,7 @@
     card.style.display = 'block';
     card.innerHTML = `
       <div class="missing-title">
-        <span style="color:var(--mid)">△</span> How to improve this score
+        <span style="color:var(--mid)">△</span> Suggestions to increase score
       </div>
       ${missing.map(m => `
         <div class="missing-row">
@@ -363,7 +407,7 @@
   function renderResults(data) {
     const score  = data.confidence_score || 0;
     const tier   = (data.confidence_tier || 'LOW').toLowerCase();
-    const method = data.scoring_method || 'rule';
+    const method = data.scoring_method || 'ml';
 
     const scoreEl = document.getElementById('scoreNumber');
     scoreEl.textContent = score;
@@ -374,12 +418,96 @@
     tierEl.className   = 'score-label ' + tier;
 
     document.getElementById('scoreMethod').textContent =
-      method === 'ml' ? '⬡ RandomForest' : '◆ Rule-based';
+      method === 'ml' ? '⬡ RandomForest ML' : '◆ Rule-based';
 
     const bar = document.getElementById('confBar');
     bar.className = 'conf-bar-fill ' + tier;
     setTimeout(() => { bar.style.width = score + '%'; }, 50);
     document.getElementById('scoreText').textContent = score + ' / 100';
+
+    // Discrepancy & Conflict Banner
+    const disc = data.discrepancy;
+    const banner = document.getElementById('conflictBanner');
+    if (disc && disc.has_conflict) {
+      banner.style.display = 'flex';
+      const isCritical = disc.severity === 'CRITICAL';
+      const isWarning  = disc.severity === 'WARNING';
+      banner.className = 'conflict-banner ' + (isCritical ? 'critical' : (isWarning ? 'warning' : 'critical'));
+      const icon = isCritical ? '⛔' : '⚠';
+      banner.innerHTML = `
+        <div class="conflict-icon">${icon}</div>
+        <div>
+          <div class="conflict-title">${disc.status.replace(/_/g, ' ')} [${disc.severity}]</div>
+          <div class="conflict-desc">${disc.message}</div>
+          ${disc.suggestion ? `<div class="conflict-sugg">💡 Action: ${disc.suggestion}</div>` : ''}
+        </div>
+      `;
+    } else if (disc && disc.status === 'VERIFIED') {
+      banner.style.display = 'flex';
+      banner.className = 'conflict-banner verified';
+      banner.innerHTML = `
+        <div class="conflict-icon">🛡</div>
+        <div>
+          <div class="conflict-title">Cross-Validation Passed</div>
+          <div class="conflict-desc">${disc.message}</div>
+        </div>
+      `;
+    } else {
+      banner.style.display = 'none';
+    }
+
+    // Logistics Deliverability & RTO Card
+    const deliv = data.deliverability;
+    const delivCard = document.getElementById('delivCard');
+    if (deliv) {
+      delivCard.style.display = 'block';
+      const rtoTier = (deliv.rto_risk || 'MEDIUM').toLowerCase();
+      const personaLabel = (deliv.deliverability_tier || '').replace(/_/g, ' ');
+      
+      let checklistHtml = '';
+      if (deliv.checklist) {
+        for (const [key, item] of Object.entries(deliv.checklist)) {
+          const isPassed = item.passed;
+          checklistHtml += `
+            <div class="check-item ${isPassed ? 'passed' : ''}">
+              <span class="check-icon ${isPassed ? 'passed' : 'failed'}">${isPassed ? '✓' : '✕'}</span>
+              <span>${item.label}</span>
+            </div>
+          `;
+        }
+      }
+
+      delivCard.innerHTML = `
+        <div class="deliv-header">
+          <div class="deliv-title">
+            <span>📦 Logistics Deliverability Index</span>
+            <span style="color:var(--muted);font-size:10px;">(${deliv.checklist_passed}/${deliv.checklist_total} Factors Validated)</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--muted);">Doorstep Probability: <strong style="color:var(--text);">${deliv.estimated_success_rate}%</strong></span>
+            <span class="deliv-badge ${rtoTier}">RTO: ${deliv.rto_risk} RISK</span>
+          </div>
+        </div>
+        <div class="deliv-action ${rtoTier}">
+          <strong>${personaLabel}</strong> — ${deliv.dispatch_action}
+        </div>
+        <div class="deliv-checklist">
+          ${checklistHtml}
+        </div>
+      `;
+    } else {
+      delivCard.style.display = 'none';
+    }
+
+    // Notes
+    const notesCard = document.getElementById('notesCard');
+    const notesList = document.getElementById('notesList');
+    if (data.enrichment_notes && data.enrichment_notes.length > 0) {
+      notesCard.style.display = 'block';
+      notesList.innerHTML = data.enrichment_notes.map(n => `<li>${n}</li>`).join('');
+    } else {
+      notesCard.style.display = 'none';
+    }
 
     // Missing fields feedback
     renderMissingFields(data);
@@ -396,12 +524,23 @@
         tag.style.display = 'none';
       }
     };
-    setCard('statPincode',  'statPincodeTag',  data.pincode,   data.district ? 'src-rule' : 'src-none', data.district ? 'Validated' : 'Not validated');
-    setCard('statDistrict', 'statDistrictTag', data.district,  'src-db',  'India Post DB');
-    setCard('statState',    'statStateTag',    data.state,     data.pincode && data.district ? 'src-db' : 'src-nlp', data.pincode && data.district ? 'India Post DB' : 'NLP Parser');
-    setCard('statCity',     'statCityTag',     data.city,      'src-nlp', 'NLP Parser');
 
-    renderMap(data.latitude, data.longitude);
+    let pinTagClass = 'src-rule';
+    let pinTagText = 'Validated';
+    if (data.pincode_source === 'inferred') {
+      pinTagClass = 'src-inferred';
+      pinTagText = 'Inferred via Reverse Lookup';
+    } else if (!data.pincode_validated) {
+      pinTagClass = 'src-none';
+      pinTagText = 'Unverified';
+    }
+
+    setCard('statPincode',  'statPincodeTag',  data.pincode,  pinTagClass, pinTagText);
+    setCard('statDistrict', 'statDistrictTag', data.district, 'src-db',    'India Post DB');
+    setCard('statState',    'statStateTag',    data.state,    'src-db',    'Resolved State');
+    setCard('statCity',     'statCityTag',     data.city,     'src-nlp',   'NLP Parser');
+
+    renderMap(data.latitude, data.longitude, data.pincode_source);
 
     // All fields table
     const body = document.getElementById('fieldsBody');
@@ -416,7 +555,7 @@
       row.innerHTML = `
         <div class="field-key">${label}</div>
         <div class="field-val ${isNull ? 'null' : key === 'confidence_score' ? 'accent' : ''}">
-          ${isNull ? 'null' : val}
+          ${isNull ? 'null' : (key === 'pincode_source' && val === 'inferred' ? '<span style="color:var(--accent);font-weight:600;">Inferred (Reverse Lookup)</span>' : val)}
         </div>`;
       body.appendChild(row);
     }
@@ -427,23 +566,24 @@
     }, 200);
   }
 
-  function renderMap(lat, lon) {
+  function renderMap(lat, lon, pinSource) {
     const card = document.getElementById('mapCard');
     if (lat && lon) {
+      const sourceNote = pinSource === 'inferred' ? 'Coordinates from Inferred Post Office' : 'Coordinates from India Post DB';
       card.innerHTML = `
         <div class="map-coords">${parseFloat(lat).toFixed(4)}°N, ${parseFloat(lon).toFixed(4)}°E</div>
         <div style="text-align:center;">
           <div class="map-dot"></div>
-          <p style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:32px;">Coordinates from India Post DB</p>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:32px;">${sourceNote}</p>
         </div>
         <a href="https://maps.google.com/?q=${lat},${lon}" target="_blank"
-           style="position:absolute;bottom:12px;right:12px;font-family:var(--font-mono);font-size:10px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:6px;text-decoration:none;transition:color 0.15s;"
-           onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Open in Maps ↗</a>`;
+           style="position:absolute;bottom:12px;right:12px;font-family:var(--font-mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,241,53,0.3);background:rgba(200,241,53,0.05);padding:4px 12px;border-radius:6px;text-decoration:none;transition:all 0.15s;"
+           onmouseover="this.style.background='rgba(200,241,53,0.15)'" onmouseout="this.style.background='rgba(200,241,53,0.05)'">Open in Google Maps ↗</a>`;
     } else {
       card.innerHTML = `
         <div class="map-placeholder">
           <div style="font-size:24px;margin-bottom:8px;opacity:0.3;">◎</div>
-          <div>Add a valid pincode to get coordinates</div>
+          <div>No GPS coordinates available</div>
         </div>`;
     }
   }
