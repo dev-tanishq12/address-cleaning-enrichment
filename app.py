@@ -4,6 +4,7 @@ import time
 
 from flask import Flask, render_template, request, jsonify, Response
 from pipeline import process_address
+from gemini_parser import gemini_status
 
 app = Flask(__name__)
 
@@ -239,6 +240,22 @@ def upload_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
+
+
+@app.route("/status", methods=["GET"])
+def status():
+    """
+    Health & Gemini availability check endpoint.
+
+    Response (JSON):
+        { "status": "ok", "gemini_available": bool, "model": str }
+    """
+    gs = gemini_status()
+    return jsonify({
+        "status":           "ok",
+        "gemini_available": gs["gemini_available"],
+        "model":            gs["model"],
+    })
 
 
 if __name__ == "__main__":

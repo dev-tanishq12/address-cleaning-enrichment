@@ -131,7 +131,23 @@ pip install -r requirements.txt
 ### 3. Dataset Setup
 Download the India Post PIN code directory (`india_post_pincode.csv`) and place it inside the `data/` directory.
 
-### 4. Train Confidence Model & Run Server
+### 4. Configure Gemini (optional)
+
+Gemini uses Google's supported `google-genai` Python SDK and is configured by the server operator; dashboard users only need to enter an address. Open the repository's `.env` file and paste your key after `GEMINI_API_KEY=`. The app loads `.env` on startup, and `.env` is excluded from Git. Never commit or share the populated file. `.env.example` shows the expected format.
+
+Windows PowerShell:
+```powershell
+$env:GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+```
+
+Linux/macOS:
+```bash
+export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+```
+
+If the key is missing, invalid, unavailable, or rate-limited, AddressIQ continues cleaning addresses with its local NLP fallback. Invalid-key and quota/rate-limit failures disable further Gemini requests for the current server process to avoid repeating failed calls. Restart Flask after editing `.env` or after the underlying Gemini issue is resolved.
+
+### 5. Train Confidence Model & Run Server
 ```bash
 # Train the RandomForest confidence scoring model
 python confidence_score.py

@@ -293,13 +293,43 @@
     border-radius: 7px; padding: 8px 12px; line-height: 1.5;
   }
 
+
+  /* Gemini parse-method pill on results */
+  .parse-method-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 20px; font-weight: 600; margin-left: 8px;
+  }
+  .parse-method-pill.gemini {
+    background: rgba(200,241,53,0.1); color: var(--accent);
+    border: 1px solid rgba(200,241,53,0.3);
+  }
+  .parse-method-pill.fallback {
+    background: rgba(245,158,11,0.1); color: var(--mid);
+    border: 1px solid rgba(245,158,11,0.25);
+  }
+
+  /* Gemini cleaned address card */
+  .gemini-cleaned-card {
+    background: rgba(200,241,53,0.04); border: 1px solid rgba(200,241,53,0.2);
+    border-radius: 10px; padding: 12px 18px; margin-bottom: 12px;
+    font-family: var(--font-mono); font-size: 13px; color: var(--text);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .gemini-cleaned-label {
+    font-size: 10px; color: var(--accent); letter-spacing: 1px;
+    text-transform: uppercase; white-space: nowrap; padding-top: 1px;
+  }
+
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo"><div class="logo-dot"></div>Address<span>IQ</span></div>
-  <div class="header-badge">v2.0 • Hybrid ML + NLP + Postal Engine</div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="header-badge">v3.0 &bull; Gemini AI + ML + NLP + Postal</div>
+  </div>
 </header>
 
 <section class="hero">
@@ -385,7 +415,7 @@
   <div class="error-msg" id="errorMsg"></div>
 
   <div class="results-header">
-    <span class="results-title">// Pipeline Output</span>
+    <span class="results-title">// Pipeline Output <span class="parse-method-pill fallback" id="parseMethodPill"></span></span>
     <div class="score-badge">
       <div class="score-number" id="scoreNumber">—</div>
       <div>
@@ -393,6 +423,12 @@
         <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);" id="scoreMethod">—</div>
       </div>
     </div>
+  </div>
+
+  <!-- GEMINI AI CLEANED ADDRESS -->
+  <div class="gemini-cleaned-card" id="geminiCleanedCard" style="display:none;">
+    <span class="gemini-cleaned-label">&#x2756; Gemini&nbsp;AI</span>
+    <span id="geminiCleanedText"></span>
   </div>
 
   <!-- DISCREPANCY & CONFLICT ALERT BANNER -->
@@ -495,6 +531,7 @@
 <script>
   const FIELDS_DISPLAY = {
     raw_address: "Raw input",
+    gemini_cleaned_address: "Gemini AI cleaned",
     normalized_address: "Normalized text",
     house_no: "House / Unit no",
     locality: "Locality / Area",
@@ -605,7 +642,7 @@
         </div>`).join('')}`;
   }
 
-  function renderResults(data) {
+  function renderBaseResults(data) {
     const score  = data.confidence_score || 0;
     const tier   = (data.confidence_tier || 'LOW').toLowerCase();
     const method = data.scoring_method || 'ml';
@@ -1106,6 +1143,34 @@
       </body></html>
     `);
     win.document.close();
+  }
+
+
+  // ── PATCH renderResults to show Gemini metadata ───────────────────────────────
+  function renderResults(data) {
+    renderBaseResults(data);
+
+    // Parse method pill
+    const pill = document.getElementById('parseMethodPill');
+    if (data.gemini_used) {
+      pill.textContent  = '✦ Gemini AI';
+      pill.className    = 'parse-method-pill gemini';
+      pill.style.display = 'inline-flex';
+    } else {
+      pill.textContent  = '⟳ NLP Fallback';
+      pill.className    = 'parse-method-pill fallback';
+      pill.style.display = 'inline-flex';
+    }
+
+    // Gemini cleaned address card
+    const cleanedCard = document.getElementById('geminiCleanedCard');
+    const cleanedText = document.getElementById('geminiCleanedText');
+    if (data.gemini_used && data.gemini_cleaned_address) {
+      cleanedCard.style.display = 'flex';
+      cleanedText.textContent   = data.gemini_cleaned_address;
+    } else {
+      cleanedCard.style.display = 'none';
+    }
   }
 
 </script>

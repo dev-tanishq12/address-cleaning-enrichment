@@ -13,6 +13,13 @@ ENV/
 # Large dataset & binary ML model (downloadable / trained locally)
 data/india_post_pincode.csv
 data/confidence_model.pkl
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
 
 # IDE & Editor settings
 .vscode/
