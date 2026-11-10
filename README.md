@@ -129,7 +129,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Dataset Setup
-Download the India Post PIN code directory (`india_post_pincode.csv`) and place it inside the `data/` directory.
+The `data/` directory contains the India Post PIN code dataset and the trained confidence model used by the application. Keep these files in place when deploying; the postal dataset is required at startup.
 
 ### 4. Configure Gemini (optional)
 
@@ -156,6 +156,14 @@ python confidence_score.py
 python app.py
 ```
 Open **`http://127.0.0.1:5000`** in your browser.
+
+### 6. Deploy to Vercel
+1. Push the project to GitHub and import the repository in Vercel. Vercel detects the Flask application in `app.py` and installs dependencies from `requirements.txt`.
+2. Ensure `data/india_post_pincode.csv` and `data/confidence_model.pkl` are included in the repository; `.gitignore` no longer excludes these deployment assets.
+3. In the Vercel project settings, add `GEMINI_API_KEY` as an environment variable for the environments where you want Gemini enabled. This is optional; the application falls back to local NLP when it is missing or unavailable. Never add a real key to Git or browser code.
+4. Deploy, then verify the site and `/status` endpoint. Submit a test address to confirm `/clean` works.
+
+The application runs as a Vercel serverless function. Requests do not share process memory reliably, so Gemini's in-process failure circuit breaker may reset between separate function instances.
 
 ---
 

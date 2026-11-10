@@ -10,9 +10,7 @@ venv/
 env/
 ENV/
 
-# Large dataset & binary ML model (downloadable / trained locally)
-data/india_post_pincode.csv
-data/confidence_model.pkl
+# Deployment data is tracked so Vercel can load the postal database and model.
 .env
 .env.*
 !.env.example
